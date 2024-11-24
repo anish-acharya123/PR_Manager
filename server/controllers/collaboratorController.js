@@ -3,6 +3,7 @@ const Collaborator = require("../models/Collaborator");
 
 const NewCollaborator = async (req, res) => {
   const { repoOwner, repoName, collaboratorUsername, token } = req.body;
+  console.log(req.body, "anish");
   try {
     const response = await axios.put(
       `https://api.github.com/repos/${repoOwner}/${repoName}/collaborators/${collaboratorUsername}`,
@@ -17,7 +18,7 @@ const NewCollaborator = async (req, res) => {
     console.log("GitHub Response:", response.data);
 
     const collaborator = new Collaborator({
-      repoOwner: response.data.owner.id,
+      repoOwner: response.data.repository.owner.id,
       repoId: response.data.repository.id,
       username: response.data.invitee.login,
       githubLink: response.data.invitee.html_url,

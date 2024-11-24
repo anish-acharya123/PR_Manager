@@ -1,6 +1,6 @@
 import Button from "../../UI/Button";
 import { useState } from "react";
-import CollaborationSearch from "../CollaborationSearch/CollaborationSearch";
+import CollaborationSearch from "../CollaborationSearch";
 
 const SearchPopup = ({
   setPopup,
@@ -26,9 +26,10 @@ const SearchPopup = ({
         type="search"
         className="w-full mt-4 px-2 py-2 rounded-full focus:outline-none bg-transparent border"
         onChange={(e) => setQuery(e.target.value)}
+        placeholder="search your collaborator"
       />
 
-      <CollaborationSearch query={query} />
+      <CollaborationSearch query={query}  />
     </div>
   );
 };

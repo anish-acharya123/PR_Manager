@@ -5,6 +5,8 @@ import { useTokenContext } from "./context/TokenContext";
 import { getTokenFromCookies } from "./utils/FetchTokenFromCookie";
 import { useEffect } from "react";
 import { routes } from "./constants/Routes";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; 
 
 function App() {
   const access_token = getTokenFromCookies();
@@ -20,6 +22,18 @@ function App() {
     <>
       <Router>
         <Layout>
+          <ToastContainer
+            position="top-right" // Position of the toast
+            autoClose={3000} // Auto close after 3 seconds
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light" // Options: light, dark, colored
+          />
           <Routes>
             {routes.map((item) => (
               <Route key={item.id} path={item.path} element={item.element} />
