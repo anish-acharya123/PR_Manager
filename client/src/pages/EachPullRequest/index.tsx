@@ -7,12 +7,12 @@ import { savePullRequests } from "../../utils/savePullRequests";
 import { useTokenContext } from "../../context/TokenContext";
 import { useEffect } from "react";
 import useCustomNavigation from "../../hooks/useCustomNavigation";
+import AssigningCollaborator from "../../components/layouts/AssigningCollaborator";
 
 const EachPullRequest = () => {
-  const { query } = useCustomSearchParams();
-  const repo = query("repo");
-  const owner = query("user");
-  const repoId = query("id");
+  const repo = useCustomSearchParams("repo");
+  const owner = useCustomSearchParams("user");
+  const repoId = useCustomSearchParams("id");
   const { goBack } = useCustomNavigation();
   const { token } = useTokenContext();
 
@@ -31,20 +31,24 @@ const EachPullRequest = () => {
 
   return (
     <section className="py-16 ">
-      {
-        <MaxwidthContainer>
-          <Button label="← back" variant="outline" onclick={() => goBack()} />
-          <div className="flex  items-center justify-center text-center flex-col ">
-            <h1 className="text-4xl   font-medium underline underline-offset-4 border-gray-500 py-2 ">
+      <MaxwidthContainer>
+        <Button
+          label="← back"
+          className=" px-4 py-2"
+          variant="outline"
+          onclick={() => goBack()}
+        />
+        <div className=" flex items-center  justify-center ">
+          <div className="text-center  w-[80%] relative  ">
+            <h1 className="text-4xl  text-start   font-medium  underline underline-offset-4 border-gray-500 py-2 ">
               Repository:{" "}
               <span className="text-green-400 text-glow">{repo}</span>
             </h1>
-            <div>
-              <PullrequestTable />
-            </div>
+            <PullrequestTable />
+            <AssigningCollaborator />
           </div>
-        </MaxwidthContainer>
-      }
+        </div>
+      </MaxwidthContainer>
     </section>
   );
 };

@@ -17,6 +17,7 @@ const HeroSection = () => {
       <div className="py-8 space-y-8 border-t-2 border-cyan-200">
         <HeroFeatures />
         <Button
+          className=" px-4 py-2"
           label="Get Started with GitHub"
           variant="primary"
           onclick={() => Handlegithublogin()}

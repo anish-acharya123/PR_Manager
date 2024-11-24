@@ -1,5 +1,4 @@
 const PullRequest = require("../models/PullrequestModel");
-const { trace } = require("../routes/authRoutes");
 const { fetchPRsFromGithub } = require("../services/githubService");
 
 const InsertPullRequest = async (req, res) => {
@@ -43,7 +42,7 @@ const InsertPullRequest = async (req, res) => {
 
 const FetchPullRequestFromMD = async (req, res) => {
   const { repoId } = req.params;
-  console.log(repoId);
+  // console.log(repoId);
 
   try {
     const pullRequests = await PullRequest.find({ repoId });

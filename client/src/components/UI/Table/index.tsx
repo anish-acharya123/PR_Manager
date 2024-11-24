@@ -7,7 +7,7 @@ interface TableProps<T> {
 
 const Table = <T,>({ data, columns }: TableProps<T>) => {
   return (
-    <div className="overflow-x-auto ">
+    <div className="overflow-x-auto  cursor-pointer">
       <table className="min-w-full bg-transparent border border-gray-300 ">
         <thead>
           <tr className=" ">

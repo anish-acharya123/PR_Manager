@@ -36,6 +36,8 @@ app.use("/auth/github", require("./routes/authRoutes"));
 app.use("/logout", require("./routes/userRoutes"));
 // pull request
 app.use("/api", require("./routes/pullrequestRoutes"));
+//collaborator adddding
+app.use("/collaborator", require("./routes/collaboratorRoutes"));
 // app.use("/api/github", require("./routes/pullrequestRoutes"))
 
 app.listen(5000, () => console.log("Server running on http://localhost:5000"));

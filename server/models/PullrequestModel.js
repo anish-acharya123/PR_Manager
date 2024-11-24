@@ -10,6 +10,7 @@ const reviewerSchema = new mongoose.Schema({
   },
 });
 
+
 const pullRequestSchema = new mongoose.Schema({
   repoId: { type: String, required: true },
   repoName: { type: String, required: true },

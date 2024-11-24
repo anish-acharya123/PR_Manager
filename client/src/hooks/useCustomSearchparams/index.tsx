@@ -1,9 +1,7 @@
 import { useSearchParams } from "react-router-dom";
-const useCustomSearchParams = () => {
+const useCustomSearchParams = (searchquery: string) => {
   const [searchParams] = useSearchParams();
-  const query = (searchquery: string) => {
-    return searchParams.get(searchquery);
-  };
-  return { query };
+
+  return searchParams.get(searchquery);
 };
 export default useCustomSearchParams;

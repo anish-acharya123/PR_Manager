@@ -15,7 +15,7 @@ const Button = ({
   return (
     <button
       onClick={onclick}
-      className={`${variantClass} ${className} px-4 py-2 rounded text-center gap-2`}
+      className={`${variantClass} ${className} rounded text-center `}
     >
       {icon && (
         <figure className={iconClass}>

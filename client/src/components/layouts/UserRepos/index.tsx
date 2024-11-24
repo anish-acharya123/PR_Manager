@@ -9,8 +9,7 @@ import { useCustomQuery } from "../../../hooks/useCustomQuery";
 
 const UserRepos = () => {
   const { goTo } = useCustomNavigation();
-  const { query } = useCustomSearchParams();
-  const pageNumber = query("page");
+  const pageNumber = useCustomSearchParams("page");
   const [page, setPage] = useState(parseInt(pageNumber ?? "1"));
   const { token } = useTokenContext();
 
@@ -70,6 +69,7 @@ const UserRepos = () => {
               </p>
             </div>
             <Button
+            className="px-4 py-2"
               icon="codicon:git-pull-request-go-to-changes"
               onclick={() =>
                 goTo(
