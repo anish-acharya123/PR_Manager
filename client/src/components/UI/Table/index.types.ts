@@ -10,7 +10,7 @@ export interface PullRequest {
   createdAt: string;
   updatedAt: string;
   repoName: string;
-  reviewers: string[]; // Could be enhanced with reviewer details
+  reviewers: string; // Could be enhanced with reviewer details
 }
 
 // Column definition type

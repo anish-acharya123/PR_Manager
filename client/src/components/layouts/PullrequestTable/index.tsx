@@ -56,14 +56,23 @@ const PullrequestTable = () => {
 
     { header: "Status", accessor: "status" },
     {
-      header: "Created At",
-      accessor: "createdAt",
-      render: (value) => new Date(value).toLocaleString(),
-    },
-    {
-      header: "Updated At",
-      accessor: "updatedAt",
-      render: (value) => new Date(value).toLocaleString(),
+      header: "Reviewer",
+      accessor: "reviewers",
+      render: (value) => (
+        <div>
+          {value.length > 0 ? (
+            value.map((reviewer: any) => (
+              <a href={reviewer.reviwerGithub}>
+                <span key={reviewer._id} className="text-blue-500 hover:underline">
+                  {reviewer.reviwerName}
+                </span>
+              </a>
+            ))
+          ) : (
+            <span className="text-gray-500">Not Assigned</span>
+          )}
+        </div>
+      ),
     },
   ];
 

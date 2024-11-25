@@ -1,15 +1,10 @@
 const mongoose = require("mongoose");
 
 const reviewerSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
-  username: { type: String, required: true },
-  status: {
-    type: String,
-    enum: ["pending", "approved", "rejected"],
-    default: "pending",
-  },
+  reviwerName: { type: String, required: true },
+  reviwerGithub: { type: String, required: true },
+  email: { type: String },
 });
-
 
 const pullRequestSchema = new mongoose.Schema({
   repoId: { type: String, required: true },

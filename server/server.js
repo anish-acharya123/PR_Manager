@@ -38,6 +38,8 @@ app.use("/logout", require("./routes/userRoutes"));
 app.use("/api", require("./routes/pullrequestRoutes"));
 //collaborator adddding
 app.use("/collaborator", require("./routes/collaboratorRoutes"));
+//assign reviwer
+app.use("/reviewer", require("./routes/reviwerRoutes"));
 // app.use("/api/github", require("./routes/pullrequestRoutes"))
 
 app.listen(5000, () => console.log("Server running on http://localhost:5000"));

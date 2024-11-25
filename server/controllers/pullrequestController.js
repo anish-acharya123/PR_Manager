@@ -1,5 +1,8 @@
+const Collaborator = require("../models/Collaborator");
 const PullRequest = require("../models/PullrequestModel");
 const { fetchPRsFromGithub } = require("../services/githubService");
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const InsertPullRequest = async (req, res) => {
   const { owner, repo } = req.params;
@@ -52,4 +55,81 @@ const FetchPullRequestFromMD = async (req, res) => {
   }
 };
 
-module.exports = { InsertPullRequest, FetchPullRequestFromMD };
+//////// assign random reviwer to the repo
+const assignRandomReviewer = async (req, res) => {
+  try {
+    const { repoOwner, repoId } = req.body;
+
+    // Step 1: Fetch collaborators for the repo
+    const collaborators = await Collaborator.find({
+      repoOwner,
+      repoId,
+      status: "accepted", // Only accepted collaborators
+    });
+
+    if (collaborators.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No collaborators found for this repo" });
+    }
+
+    // Step 2: Fetch all pull requests for the repo
+    const pullRequests = await PullRequest.find({ repoId });
+
+    if (pullRequests.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No pull requests found for this repo" });
+    }
+
+    // Step 3: Iterate over each pull request and assign a random collaborator
+    for (const pr of pullRequests) {
+      const randomCollaborator =
+        collaborators[Math.floor(Math.random() * collaborators.length)];
+
+      // Create a reviewer object
+      const newReviewer = {
+        reviwerGithub: randomCollaborator.inviteeGithub,
+        reviwerName: randomCollaborator.inviteeName,
+        email: randomCollaborator.email,
+      };
+
+      // Add the reviewer to the PR reviewers array
+      pr.reviewers.push(newReviewer);
+      await pr.save(); // Save the updated pull request
+
+      // Step 4: Send an email to the assigned collaborator
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_NAME, // Replace with your email
+          pass: process.env.EMAIL_PASSWORD, // Replace with your email password
+        },
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: randomCollaborator.email,
+        subject: "Assigned as Pull Request Reviewer",
+        text: `Hi ${randomCollaborator.inviteeName},\n\nYou have been assigned as a reviewer for the pull request titled "${pr.title}". Please review it at the following link: ${pr.prLink}\n\nThank you!`,
+      };
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    // Step 5: Send response to frontend
+    res.status(200).json({
+      message:
+        "Collaborators assigned successfully to all pull requests and emails sent.",
+    });
+  } catch (error) {
+    console.error("Error assigning reviewers:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = {
+  InsertPullRequest,
+  FetchPullRequestFromMD,
+  assignRandomReviewer,
+};
