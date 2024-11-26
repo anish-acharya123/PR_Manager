@@ -4,7 +4,7 @@ import UserRepos from "../../components/layouts/UserRepos";
 
 const Dashboard = () => {
   return (
-    <section className="py-20">
+    <section className="py-10">
       <MaxwidthContainer>
         <div className=" flex justify-center items-center  gap-10 ">
           <UserProfile />

@@ -17,7 +17,6 @@ const Footer = () => {
           </p>
         </footer>
       </MaxwidthContainer>
-      ;
     </footer>
   );
 };

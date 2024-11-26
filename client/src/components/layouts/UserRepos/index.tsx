@@ -5,7 +5,7 @@ import useCustomSearchParams from "../../../hooks/useCustomSearchparams";
 import { useState } from "react";
 import { useTokenContext } from "../../../context/TokenContext";
 import { useCustomQuery } from "../../../hooks/useCustomQuery";
-// import RepoPegination from "../../Smallcomponents/RepoPagination";
+import UserReposSkeleton from "../UserReposSkeleton";
 
 const UserRepos = () => {
   const { goTo } = useCustomNavigation();
@@ -28,6 +28,11 @@ const UserRepos = () => {
   });
 
   console.log(data, isLoading, isFetching, error);
+  const isUpcoming = isFetching || isLoading;
+
+  if (isUpcoming) {
+    return <UserReposSkeleton />;
+  }
 
   const handleNext = () => {
     goTo(`/dashboard?page=${page + 1}`);
@@ -40,16 +45,22 @@ const UserRepos = () => {
       setPage((prevPage: number) => prevPage - 1);
     }
   };
+
   return (
-    <div className=" text-center space-y-4">
+    <div className="text-center space-y-4 flex flex-col items-center">
       <h2 className="text-2xl font-medium border-b-2 pb-6">
         Select a repository to start managing pull requests.
       </h2>
+
       <List
         items={data}
-        className="text-start"
+        className="text-start w-full flex justify-between flex-col"
         renderItem={(item: any) => (
-          <li className="flex justify-between py-4 border-b-2 border-gray-500">
+          <li
+            className="flex justify-between py-4 border-b-2"
+            data-aos="fade-left"
+            data-aos-duration="1000"
+          >
             <div className="space-y-4">
               <p className="space-x-4">
                 <a
@@ -69,11 +80,11 @@ const UserRepos = () => {
               </p>
             </div>
             <Button
-            className="px-4 py-2"
+              className="px-4 py-2"
               icon="codicon:git-pull-request-go-to-changes"
               onclick={() =>
                 goTo(
-                  `/mangae-pullrequest?user=${item.owner.login}&repo=${item.name}&id=${item.id}`
+                  `/dashboard/mangae-pullrequest?user=${item.owner.login}&repo=${item.name}&id=${item.id}`
                 )
               }
             />
@@ -81,8 +92,7 @@ const UserRepos = () => {
         )}
       />
 
-      {/* <RepoPegination /> */}
-      <div>
+      <div data-aos="fade-left" data-aos-duration="1000">
         <button
           onClick={handlePrevious}
           disabled={page === 1}

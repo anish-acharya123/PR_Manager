@@ -13,5 +13,5 @@ export const variantStyles = {
   primary: "bg-blue-500 text-white hover:bg-blue-600",
   secondary: "bg-gray-500 text-white hover:bg-gray-600",
   danger: "bg-red-500 text-white hover:bg-red-600",
-  outline: "border border-blue-500 text-blue-500 text-blue-500 hover:bg-blue-900 text-white",
+  outline: "border   text-white",
 };

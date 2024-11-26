@@ -1,3 +1,4 @@
+import DynamicSkeleton from "../Skeletons";
 import { Column } from "./index.types";
 
 interface TableProps<T> {
@@ -12,7 +13,10 @@ const Table = <T,>({ data, columns }: TableProps<T>) => {
         <thead>
           <tr className=" ">
             {columns.map((col, index) => (
-              <th key={index} className="py-2 px-4 border-b ">
+              <th
+                key={index}
+                className="py-2 px-4 border-b border-r bg-gray-600"
+              >
                 {col.header}
               </th>
             ))}

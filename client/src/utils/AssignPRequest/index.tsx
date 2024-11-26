@@ -18,17 +18,14 @@ export const AssignPRequest = async ({
       { repoOwner, repo, repoId }
     );
 
-    // If successful, show a success toast
     toast.success(response.data.message || "Reviewer assigned successfully!");
   } catch (error: any) {
     console.error("Error from frontend:", error);
 
-    // If the error has a response, handle specific status codes
     if (error.response) {
       const statusCode = error.response.status;
       const errorMessage = error.response.data.message || "An error occurred";
 
-      // Handle errors based on status codes
       if (statusCode === 400) {
         toast.error(`Bad Request: ${errorMessage}`);
       } else if (statusCode === 401) {
@@ -41,7 +38,6 @@ export const AssignPRequest = async ({
         toast.error(errorMessage);
       }
     } else {
-      // Handle errors without a response object (e.g., network issues)
       toast.error("Network error. Please check your connection.");
     }
   }

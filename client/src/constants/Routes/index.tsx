@@ -15,7 +15,7 @@ export const routes = [
   },
   {
     id: 2,
-    path: "/mangae-pullrequest",
+    path: "/dashboard/mangae-pullrequest",
     element: <EachPullRequest />,
   },
 ];
