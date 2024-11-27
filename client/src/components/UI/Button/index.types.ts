@@ -1,6 +1,6 @@
 export type BtnProps = {
   label?: string;
-  variant?: "primary" | "secondary" | "danger" | "outline";
+  variant?: "primary" | "secondary" | "danger" | "outline" | "normal";
   type?: "clicked" | "submit";
   className?: string;
   iconClass?: string;
@@ -14,4 +14,5 @@ export const variantStyles = {
   secondary: "bg-gray-500 text-white hover:bg-gray-600",
   danger: "bg-red-500 text-white hover:bg-red-600",
   outline: "border   text-white",
+  normal: "",
 };

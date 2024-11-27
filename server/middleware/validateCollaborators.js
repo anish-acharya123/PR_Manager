@@ -13,7 +13,7 @@ const validateCollaborators = async (req, res, next) => {
     // Fetch all collaborators for the given repo
     const collaborators = await Collaborator.find({ repoOwner, repoId });
 
-    console.log(collaborators);
+    // console.log(collaborators);
     if (collaborators.length === 0) {
       return res
         .status(404)

@@ -157,4 +157,21 @@ const getRepositoryInvitations = async (repoOwner, repoName, token) => {
   }
 };
 
-module.exports = { NewCollaborator, GetAndStoreCollaborators };
+
+
+
+
+///////////// under construction
+const insertEmail = async (req, res) => {
+  const { email, inviteeName } = req.body;
+  console.log(email, _id);
+
+  const CollaboratorWithInviteeName = await Collaborator.findOneAndUpdate({
+    inviteeName
+  }); 
+  res.status(200).json({
+    message: "success",
+  });
+};
+
+module.exports = { NewCollaborator, GetAndStoreCollaborators, insertEmail };

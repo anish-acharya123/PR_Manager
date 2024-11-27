@@ -7,7 +7,11 @@ const HeroSection = () => {
   return (
     <div className=" py-32   space-y-2 flex items-center justify-center flex-col text-center">
       <div className=" space-y-4 py-10">
-        <h1 className="text-5xl font-bold uppercase text-glow ">
+        <h1
+          className="text-5xl font-bold uppercase text-glow "
+          data-aos="fade-right"
+          data-aos-duration="1000"
+        >
           Automate Your{" "}
           <span className="text-green-400">Pull Request Reviews</span>
         </h1>

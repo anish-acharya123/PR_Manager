@@ -84,7 +84,7 @@ const UserRepos = () => {
               icon="codicon:git-pull-request-go-to-changes"
               onclick={() =>
                 goTo(
-                  `/dashboard/mangae-pullrequest?user=${item.owner.login}&repo=${item.name}&id=${item.id}`
+                  `/dashboard/manage-pullrequest?user=${item.owner.login}&repo=${item.name}&id=${item.id}`
                 )
               }
             />

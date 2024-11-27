@@ -74,24 +74,27 @@ const PullrequestTable = () => {
     {
       header: "Reviewer",
       accessor: "reviewers",
-      render: (value) => (
-        <div>
-          {value.length > 0 ? (
-            value.map((reviewer: any) => (
-              <a href={reviewer.reviwerGithub}>
-                <span
-                  key={reviewer._id}
-                  className="text-blue-300 hover:underline"
-                >
-                  {reviewer.reviwerName}
-                </span>
-              </a>
-            ))
-          ) : (
-            <span className="text-gray-500">Not Assigned</span>
-          )}
-        </div>
-      ),
+      render: (_, row) => {
+        if (
+          row.reviewers?.reviewerName.length > 0 &&
+          row.reviewers?.reviewerGithub.length > 0
+        ) {
+          return (
+            <a
+              href={row.reviewers.reviewerGithub}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-300 hover:underline"
+            >
+              {row.reviewers.reviewerName}
+            </a>
+          );
+        }
+
+        return (
+          <span className="text-gray-500 italic">No reviewer assigned</span>
+        );
+      },
     },
   ];
 
@@ -127,17 +130,17 @@ const PullrequestTable = () => {
         </div>
         {pullrequest && pullrequest?.length > 0 && (
           <div className="flex items-center justify-center gap-4">
-              <p className="text-xl">Filter By:</p>
-              <Button
-                variant="outline"
-                label="Open"
-                className="px-2 py-1 text-sm"
-              />
-              <Button
-                variant="outline"
-                label="Close"
-                className="px-2 py-1 text-sm"
-              />
+            <p className="text-xl">Filter By:</p>
+            <Button
+              variant="outline"
+              label="Open"
+              className="px-2 py-1 text-sm"
+            />
+            <Button
+              variant="outline"
+              label="Close"
+              className="px-2 py-1 text-sm"
+            />
             <div className="flex items-center justify-center border  rounded-full px-2 h-8 text-sm ">
               <Icon icon="weui:search-outlined" className="text-2xl" />
               <input

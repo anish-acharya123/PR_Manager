@@ -7,14 +7,21 @@ require("dotenv").config();
 const InsertPullRequest = async (req, res) => {
   const { owner, repo } = req.params;
   const { token, repoId } = req.body;
+
+  if (!owner || !repo || !token || !repoId) {
+    return res.status(400).json({ error: "Missing required parameters." });
+  }
+
+  const errors = []; // Collect errors here
+
   try {
     const pullRequests = await fetchPRsFromGithub(owner, repo, token);
 
     for (const pr of pullRequests) {
       const existingPR = await PullRequest.findOne({ prId: pr.id });
 
+      // console.log(pr);
       if (!existingPR) {
-        // console.log(pr, "//next");
         try {
           const newPR = new PullRequest({
             repoId,
@@ -26,17 +33,25 @@ const InsertPullRequest = async (req, res) => {
             authorLink: pr.user.html_url,
             authorName: pr.user.login,
             status: pr.state === "closed" ? "closed" : "open",
-            reviewers: [],
+            reviewers: null,
             createdAt: new Date(pr.created_at),
             updatedAt: new Date(pr.updated_at),
           });
 
           await newPR.save();
         } catch (error) {
-          res.status(500).json({ error: "Faild to store in mb" });
+          errors.push({ prId: pr.id, error: error.message });
         }
       }
     }
+
+    if (errors.length > 0) {
+      return res.status(200).json({
+        message: "Pull requests processed with some errors.",
+        errors,
+      });
+    }
+
     res.status(200).json({ message: "Pull requests saved successfully!" });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch and save PRs" });
@@ -87,15 +102,11 @@ const assignRandomReviewer = async (req, res) => {
       const randomCollaborator =
         collaborators[Math.floor(Math.random() * collaborators.length)];
 
-      // Create a reviewer object
-      const newReviewer = {
-        reviwerGithub: randomCollaborator.inviteeGithub,
-        reviwerName: randomCollaborator.inviteeName,
-        email: randomCollaborator.email,
-      };
+      console.log(pr.repoId);
+      pr.reviewers.reviewerGithub = randomCollaborator.inviteeGithub;
+      pr.reviewers.reviewerName = randomCollaborator.inviteeName;
+      pr.reviewers.email = randomCollaborator.email;
 
-      // Add the reviewer to the PR reviewers array
-      pr.reviewers.push(newReviewer);
       await pr.save(); // Save the updated pull request
 
       // Step 4: Send an email to the assigned collaborator

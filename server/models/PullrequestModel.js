@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const reviewerSchema = new mongoose.Schema({
-  reviwerName: { type: String, required: true },
-  reviwerGithub: { type: String, required: true },
-  email: { type: String },
+  reviewerName: { type: String, required: true },
+  reviewerGithub: { type: String, required: true },
+  email: { type: String }, // Optional field
 });
 
 const pullRequestSchema = new mongoose.Schema({
@@ -13,10 +13,22 @@ const pullRequestSchema = new mongoose.Schema({
   prLink: { type: String, required: true, unique: true },
   title: { type: String, required: true }, // Title of the pull request
   authorId: { type: String, required: true }, // Author's GitHub ID
-  authorLink: { type: String, requied: true },
+  authorLink: { type: String, required: true },
   authorName: { type: String, required: true }, // Author's GitHub username
-  status: { type: String, enum: ["open", "closed", "merged"], default: "open" }, // Status of the PR
-  reviewers: [reviewerSchema], // Array of reviewers
+  status: {
+    type: String,
+    enum: ["open", "closed", "merged"],
+    default: "open",
+  }, // Status of the PR
+  reviewers: {
+    type: reviewerSchema, // Single object for reviewers' data
+    default: {
+      reviewerName: "",
+      reviewerGithub: "",
+      email: "",
+    },
+    required: false, // Optional if you want to insert PRs without reviewers initially
+  },
   createdAt: { type: Date, required: true }, // PR creation date
   updatedAt: { type: Date, required: true }, // Last update date
 });

@@ -3,7 +3,7 @@ import Typewriter from "typewriter-effect";
 const Herowriter = () => {
   return (
     <>
-      <div className="relative flex justify-center items-center text-white text-lg md:text-xl lg:text-2xl">
+      <div  className="relative flex justify-center items-center text-white text-lg md:text-xl lg:text-2xl">
         <span className="text-glow mr-2">{"< "}</span>
         <Typewriter
           options={{
