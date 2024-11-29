@@ -41,5 +41,6 @@ app.use("/collaborator", require("./routes/collaboratorRoutes"));
 //assign reviwer
 app.use("/reviewer", require("./routes/reviwerRoutes"));
 // app.use("/api/github", require("./routes/pullrequestRoutes"))
+app.use("/repos", require("./routes/repoRoutes"));
 
 app.listen(5000, () => console.log("Server running on http://localhost:5000"));

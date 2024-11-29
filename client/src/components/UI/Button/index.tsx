@@ -9,13 +9,15 @@ const Button = ({
   icon,
   onclick,
   variant = "primary",
+  // ...props
 }: BtnProps) => {
   const variantClass = variantStyles[variant] || "";
 
   return (
     <button
-      onClick={onclick}
-      className={`${variantClass} ${className} rounded text-center `}
+    onClick={onclick}
+    className={`${variantClass} ${className} rounded text-center `}
+    // {...props}
     >
       {icon && (
         <figure className={iconClass}>

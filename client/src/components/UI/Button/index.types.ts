@@ -1,4 +1,4 @@
-export type BtnProps = {
+export interface BtnProps extends React.HTMLAttributes<HTMLButtonElement> {
   label?: string;
   variant?: "primary" | "secondary" | "danger" | "outline" | "normal";
   type?: "clicked" | "submit";
@@ -7,7 +7,7 @@ export type BtnProps = {
   labelClass?: string;
   icon?: string;
   onclick?: () => void;
-};
+}
 
 export const variantStyles = {
   primary: "bg-blue-500 text-white hover:bg-blue-600",

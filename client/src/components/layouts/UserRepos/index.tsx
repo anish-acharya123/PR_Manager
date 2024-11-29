@@ -2,16 +2,24 @@ import Button from "../../UI/Button";
 import List from "../../UI/List";
 import useCustomNavigation from "../../../hooks/useCustomNavigation";
 import useCustomSearchParams from "../../../hooks/useCustomSearchparams";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTokenContext } from "../../../context/TokenContext";
 import { useCustomQuery } from "../../../hooks/useCustomQuery";
 import UserReposSkeleton from "../UserReposSkeleton";
+import useFetchAndStoreRepos from "../../../utils/GetandStorePRinMd";
 
 const UserRepos = () => {
   const { goTo } = useCustomNavigation();
   const pageNumber = useCustomSearchParams("page");
   const [page, setPage] = useState(parseInt(pageNumber ?? "1"));
   const { token } = useTokenContext();
+  const { fetchAndStoreRepos } = useFetchAndStoreRepos();
+
+  useEffect(() => {
+    if (token) {
+      fetchAndStoreRepos(token);
+    }
+  }, [token]);
 
   const { data, isLoading, isFetching, error } = useCustomQuery<
     any[] | undefined
@@ -27,7 +35,7 @@ const UserRepos = () => {
     },
   });
 
-  console.log(data, isLoading, isFetching, error);
+  console.log(error);
   const isUpcoming = isFetching || isLoading;
 
   if (isUpcoming) {

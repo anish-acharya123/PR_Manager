@@ -3,10 +3,32 @@ import Button from "../../UI/Button";
 import SearchPopup from "../../Smallcomponents/PopUp/SearchPopup";
 import CollaboratorsList from "../CollaboratorsList";
 import SendPrRequest from "../../Smallcomponents/SendPrRequest";
+import axios from "axios";
+import { toast } from "react-toastify";
+import useCustomSearchParams from "../../../hooks/useCustomSearchparams";
 
 const AssigningCollaborator = () => {
+  const repoOwner = useCustomSearchParams("user");
+  const repoId = useCustomSearchParams("id");
   const [popUp, setPopup] = useState(false);
   const { handlebtn } = SendPrRequest();
+
+  const Removebtn = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/reviewer/remove-reviewer",
+        {
+          repoOwner,
+          repoId,
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Reviewer Remove Sucessfully");
+      }
+    } catch (error) {
+      toast.error("Error while removing reviewer");
+    }
+  };
 
   return (
     <>
@@ -29,6 +51,13 @@ const AssigningCollaborator = () => {
             label="Assign Reviewer Randomly"
             variant="secondary"
             onclick={() => handlebtn()}
+          />
+          <Button
+            className="flex items-center gap-2 px-2 py-1"
+            icon="mingcute:delete-2-line"
+            label="Remove Reviewer"
+            variant="danger"
+            onclick={() => Removebtn()}
           />
         </div>
 

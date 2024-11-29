@@ -1,12 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import PullrequestTable from "../../components/layouts/PullrequestTable";
-import Button from "../../components/UI/Button";
 import MaxwidthContainer from "../../components/wrapper/Maxwidth";
 import useCustomSearchParams from "../../hooks/useCustomSearchparams";
 import { savePullRequests } from "../../utils/savePullRequests";
 import { useTokenContext } from "../../context/TokenContext";
 import { useEffect } from "react";
-import useCustomNavigation from "../../hooks/useCustomNavigation";
 import AssigningCollaborator from "../../components/layouts/AssigningCollaborator";
 import { Icon } from "@iconify/react/dist/iconify.js";
 

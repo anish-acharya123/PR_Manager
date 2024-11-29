@@ -1,4 +1,5 @@
-const Collaborator = require("../models/Collaborator");
+const Repository = require("../models/RepositoryModel");
+// const Collaborator = require("../models/Collaborator");
 
 const validateCollaborators = async (req, res, next) => {
   try {
@@ -10,11 +11,21 @@ const validateCollaborators = async (req, res, next) => {
         .json({ message: "Repo Owner and Repo ID are required." });
     }
 
-    // Fetch all collaborators for the given repo
-    const collaborators = await Collaborator.find({ repoOwner, repoId });
+    // Fetch the repository and populate collaborators
+    const repository = await Repository.findOne({
+      repoId,
+      owner: repoOwner,
+    }).populate("collaborators.collaborator");
 
-    // console.log(collaborators);
-    if (collaborators.length === 0) {
+    if (!repository) {
+      return res
+        .status(404)
+        .json({ message: "Repository not found with the given owner and ID." });
+    }
+
+    const { collaborators } = repository;
+
+    if (!collaborators || collaborators.length === 0) {
       return res
         .status(404)
         .json({ message: "No collaborators found for this repository." });
@@ -22,30 +33,29 @@ const validateCollaborators = async (req, res, next) => {
 
     // Check if all collaborators have email addresses
     const missingEmail = collaborators.find(
-      (collaborator) => !collaborator.email
+      (collab) => !collab.collaborator.email
     );
     if (missingEmail) {
       return res.status(400).json({
-        message: `Collaborator ${missingEmail.inviteeName} is missing an email address. Please update the email before assigning reviewers.`,
+        message: `Collaborator ${missingEmail.collaborator.name} is missing an email address. Please update the email before assigning reviewers.`,
       });
     }
 
     // Check if all collaborators have status "accepted"
     const pendingCollaborator = collaborators.find(
-      (collaborator) => collaborator.status === "pending"
+      (collab) => collab.status === "pending"
     );
-    console.log(pendingCollaborator);
     if (pendingCollaborator) {
       return res.status(400).json({
-        message: `Collaborator ${pendingCollaborator.inviteeName} has a "pending" status. Please accept the collaborator before assigning reviewers.`,
+        message: `Collaborator ${pendingCollaborator.collaborator.name} has a "pending" status. Please accept the collaborator before assigning reviewers.`,
       });
     }
 
-    // If all validations pass, proceed to the next middleware/controller
+    // Validation passed; proceed to the next middleware
     next();
   } catch (error) {
     console.error("Error in validateCollaborators middleware:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error." });
   }
 };
 

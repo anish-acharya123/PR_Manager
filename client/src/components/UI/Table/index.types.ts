@@ -1,7 +1,7 @@
 // Row type matching the data fetched from your database
 interface Reviewers {
-  reviewerName: string;
-  reviewerGithub: string;
+  name: string;
+  githubUrl: string;
   email: string;
 }
 
@@ -16,7 +16,7 @@ export interface PullRequest {
   createdAt: string;
   updatedAt: string;
   repoName: string;
-  reviewers: Reviewers; // Could be enhanced with reviewer details
+  reviewer: Reviewers; // Could be enhanced with reviewer details
 }
 
 // Column definition type

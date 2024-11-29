@@ -1,8 +1,8 @@
-const Collaborator = require("../models/Collaborator");
 const PullRequest = require("../models/PullrequestModel");
-const { fetchPRsFromGithub } = require("../services/githubService");
 const nodemailer = require("nodemailer");
-require("dotenv").config();
+const Collaborator = require("../models/Collaborator");
+const { fetchPRsFromGithub } = require("../services/githubService");
+const Repository = require("../models/RepositoryModel");
 
 const InsertPullRequest = async (req, res) => {
   const { owner, repo } = req.params;
@@ -12,12 +12,14 @@ const InsertPullRequest = async (req, res) => {
     return res.status(400).json({ error: "Missing required parameters." });
   }
 
-  const errors = []; // Collect errors here
+  const errors = [];
 
   try {
+    // Fetch pull requests from GitHub
     const pullRequests = await fetchPRsFromGithub(owner, repo, token);
 
     for (const pr of pullRequests) {
+      // Check if the pull request already exists in the database
       const existingPR = await PullRequest.findOne({ prId: pr.id });
 
       // console.log(pr);
@@ -25,21 +27,19 @@ const InsertPullRequest = async (req, res) => {
         try {
           const newPR = new PullRequest({
             repoId,
-            repoName: pr.base.repo.name,
             prId: pr.id,
-            prLink: pr._links.html.href,
             title: pr.title,
-            authorId: pr.user.id,
-            authorLink: pr.user.html_url,
+            prLink: pr._links.html.href,
             authorName: pr.user.login,
+            authorGithubUrl: pr.user.html_url,
             status: pr.state === "closed" ? "closed" : "open",
-            reviewers: null,
             createdAt: new Date(pr.created_at),
             updatedAt: new Date(pr.updated_at),
           });
 
           await newPR.save();
         } catch (error) {
+          console.log(error);
           errors.push({ prId: pr.id, error: error.message });
         }
       }
@@ -60,10 +60,12 @@ const InsertPullRequest = async (req, res) => {
 
 const FetchPullRequestFromMD = async (req, res) => {
   const { repoId } = req.params;
-  // console.log(repoId);
 
   try {
-    const pullRequests = await PullRequest.find({ repoId });
+    // Fetch all pull requests for the given repository ID
+    const pullRequests = await PullRequest.find({ repoId })
+      .populate("reviewer")
+      .select("-__v");
     res.status(200).json(pullRequests);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch PRs from MongoDB" });
@@ -71,71 +73,121 @@ const FetchPullRequestFromMD = async (req, res) => {
 };
 
 //////// assign random reviwer to the repo
+
 const assignRandomReviewer = async (req, res) => {
   try {
     const { repoOwner, repoId } = req.body;
 
-    // Step 1: Fetch collaborators for the repo
-    const collaborators = await Collaborator.find({
-      repoOwner,
+    const repository = await Repository.findOne({
       repoId,
-      status: "accepted", // Only accepted collaborators
-    });
+      owner: repoOwner,
+    }).populate("collaborators.collaborator");
 
-    if (collaborators.length === 0) {
+    if (!repository || repository.collaborators.length === 0) {
       return res
         .status(404)
-        .json({ message: "No collaborators found for this repo" });
+        .json({ message: "No collaborators found for this repository." });
     }
 
-    // Step 2: Fetch all pull requests for the repo
-    const pullRequests = await PullRequest.find({ repoId });
+    const acceptedCollaborators = repository.collaborators.filter(
+      (collab) => collab.status === "accepted"
+    );
+
+    if (acceptedCollaborators.length === 0) {
+      return res.status(404).json({
+        message: "No accepted collaborators found for this repository.",
+      });
+    }
+
+    const pullRequests = await PullRequest.find({ repoId, status: "open" });
 
     if (pullRequests.length === 0) {
       return res
         .status(404)
-        .json({ message: "No pull requests found for this repo" });
+        .json({ message: "No open pull requests found for this repository." });
     }
 
-    // Step 3: Iterate over each pull request and assign a random collaborator
     for (const pr of pullRequests) {
-      const randomCollaborator =
-        collaborators[Math.floor(Math.random() * collaborators.length)];
+      // Check if a reviewer is already assigned
+      if (pr.reviewer) {
+        continue;
+      }
 
-      console.log(pr.repoId);
-      pr.reviewers.reviewerGithub = randomCollaborator.inviteeGithub;
-      pr.reviewers.reviewerName = randomCollaborator.inviteeName;
-      pr.reviewers.email = randomCollaborator.email;
+      const validReviewers = acceptedCollaborators.filter(
+        (collab) => collab.collaborator.name !== pr.authorName
+      );
 
-      await pr.save(); // Save the updated pull request
+      if (validReviewers.length === 0) {
+        console.warn(
+          `No valid reviewers available for pull request: ${pr.title}`
+        );
+        continue;
+      }
 
-      // Step 4: Send an email to the assigned collaborator
+      const randomReviewer =
+        validReviewers[Math.floor(Math.random() * validReviewers.length)]
+          .collaborator;
+
+      pr.reviewer = randomReviewer._id;
+      await pr.save();
+
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: process.env.EMAIL_NAME, // Replace with your email
-          pass: process.env.EMAIL_PASSWORD, // Replace with your email password
+          user: process.env.EMAIL_NAME,
+          pass: process.env.EMAIL_PASSWORD,
         },
       });
 
       const mailOptions = {
-        from: process.env.EMAIL,
-        to: randomCollaborator.email,
+        from: process.env.EMAIL_NAME,
+        to: randomReviewer.email,
         subject: "Assigned as Pull Request Reviewer",
-        text: `Hi ${randomCollaborator.inviteeName},\n\nYou have been assigned as a reviewer for the pull request titled "${pr.title}". Please review it at the following link: ${pr.prLink}\n\nThank you!`,
+        text: `Hi ${randomReviewer.name},\n\nYou have been assigned as a reviewer for the pull request titled "${pr.title}". Please review it at the following link: ${pr.prLink}.\n\nThank you!`,
       };
 
       await transporter.sendMail(mailOptions);
     }
 
-    // Step 5: Send response to frontend
     res.status(200).json({
       message:
-        "Collaborators assigned successfully to all pull requests and emails sent.",
+        "Reviewers assigned to all open pull requests successfully, and emails sent.",
     });
   } catch (error) {
     console.error("Error assigning reviewers:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+const RemoveReviewers = async (req, res) => {
+  try {
+    const { repoOwner, repoId } = req.body;
+
+    if (!repoOwner || !repoId) {
+      return res
+        .status(400)
+        .json({ message: "Both repoOwner and repoId are required." });
+    }
+
+    const updatedPullRequests = await PullRequest.updateMany(
+      { repoId },
+      { $unset: { reviewer: "" } }
+    );
+
+    if (updatedPullRequests.modifiedCount === 0) {
+      return res.status(404).json({
+        message:
+          "No pull requests with reviewers found for the given repository.",
+      });
+    }
+
+    res.status(200).json({
+      message: "All reviewers removed successfully.",
+      updatedCount: updatedPullRequests.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Error removing reviewers:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -143,4 +195,5 @@ module.exports = {
   InsertPullRequest,
   FetchPullRequestFromMD,
   assignRandomReviewer,
+  RemoveReviewers,
 };

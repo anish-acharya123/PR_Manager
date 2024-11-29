@@ -26,7 +26,7 @@ const PullrequestTable = () => {
     }
   }, [repoId]);
 
-  // console.log(pullrequest);
+  console.log(pullrequest);
 
   const columns: Column<PullRequest>[] = [
     { header: "Title", accessor: "title" },
@@ -73,20 +73,20 @@ const PullrequestTable = () => {
     },
     {
       header: "Reviewer",
-      accessor: "reviewers",
+      accessor: "reviewer",
       render: (_, row) => {
         if (
-          row.reviewers?.reviewerName.length > 0 &&
-          row.reviewers?.reviewerGithub.length > 0
+          row.reviewer?.name.length > 0 &&
+          row.reviewer?.githubUrl.length > 0
         ) {
           return (
             <a
-              href={row.reviewers.reviewerGithub}
+              href={row.reviewer.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-300 hover:underline"
             >
-              {row.reviewers.reviewerName}
+              {row.reviewer.name}
             </a>
           );
         }
