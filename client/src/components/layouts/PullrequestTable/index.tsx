@@ -2,11 +2,11 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import useCustomSearchParams from "../../../hooks/useCustomSearchparams";
 import { FetchPullRequest } from "../../../utils/FetchPullRequest";
-import Table from "../../UI/Table";
-import { Column, PullRequest } from "../../UI/Table/index.types";
+import { Column, PullRequest } from "../../Smallcomponents/Table/index.types";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Button from "../../UI/Button";
 import EachRepoBtn from "../../../utils/EachRepoBtn";
+import TableComponent from "../../Smallcomponents/Table";
 
 const PullrequestTable = () => {
   const [pullrequest, setPullrequest] = useState<PullRequest[]>();
@@ -157,7 +157,9 @@ const PullrequestTable = () => {
       {pullrequest?.length === 0 ? (
         <div>There is No Pull request Right Now</div>
       ) : (
-        <Table data={pullrequest} columns={columns} />
+        <div>
+          <TableComponent data={pullrequest} columns={columns} />
+        </div>
       )}
     </div>
   );
