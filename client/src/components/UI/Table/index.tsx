@@ -1,4 +1,3 @@
-import DynamicSkeleton from "../Skeletons";
 import { Column } from "./index.types";
 
 interface TableProps<T> {

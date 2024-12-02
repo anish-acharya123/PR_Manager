@@ -7,6 +7,7 @@ const repositorySchema = new mongoose.Schema({
   visibility: { type: String, enum: ["public", "private"], required: true }, // Repository visibility
   createdAt: { type: Date, required: true }, // Repository creation date
   updatedAt: { type: Date, required: true }, // Repository last updated date
+  lastFetchedAt: { type: Date, default: null },
   collaborators: [
     {
       collaborator: {

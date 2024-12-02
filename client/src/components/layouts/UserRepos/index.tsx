@@ -23,17 +23,22 @@ const UserRepos = () => {
 
   const { data, isLoading, isFetching, error } = useCustomQuery<
     any[] | undefined
-  >(["userRepo", page], "https://api.github.com/user/repos", {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  >(
+    ["userRepo", page],
+    "https://api.github.com/user/repos",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        per_page: 5,
+        page,
+        sort: "updated",
+        direction: "desc",
+      },
     },
-    params: {
-      per_page: 5,
-      page,
-      sort: "updated",
-      direction: "desc",
-    },
-  });
+  
+  );
 
   console.log(error);
   const isUpcoming = isFetching || isLoading;

@@ -3,8 +3,9 @@ const Repository = require("../models/RepositoryModel");
 require("dotenv").config();
 
 const fetchAndStoreRepos = async (req, res) => {
-  const { token } = req.body; // Assuming OAuth token is stored in req.user after login
-  //   console.log(token);
+  const { token } = req.body; // GitHub token from request body
+  const TEN_MINUTES = 10 * 60 * 1000; // 10 minutes in milliseconds
+
   if (!token) {
     return res
       .status(401)
@@ -12,41 +13,53 @@ const fetchAndStoreRepos = async (req, res) => {
   }
 
   try {
+    // Step 1: Check lastFetchedAt for any repository
+    const lastFetchedRepo = await Repository.findOne().sort({
+      lastFetchedAt: -1,
+    });
+
+    const now = new Date();
+    const lastFetchedTime = lastFetchedRepo?.lastFetchedAt || 0;
+
+    if (lastFetchedRepo && now - lastFetchedTime < TEN_MINUTES) {
+      console.log("Serving data from MongoDB. No GitHub API call required.");
+      const repositories = await Repository.find();
+      return res.status(200).json(repositories);
+    }
+
     let repositories = [];
     let page = 1;
     let hasNextPage = true;
 
-    // Fetch repositories from GitHub until there are no more pages
+    // Step 2: Fetch repositories from GitHub
     while (hasNextPage) {
+      console.log("next");
       const response = await axios.get("https://api.github.com/user/repos", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          per_page: 30, // Maximum number of repositories per page
-          page: page, // Start at the first page
+          per_page: 30,
+          page: page,
         },
       });
 
-      // Concatenate the fetched repositories
       repositories = [...repositories, ...response.data];
 
-      // Check if there is a next page
       const linkHeader = response.headers["link"];
       if (linkHeader && linkHeader.includes('rel="next"')) {
-        page++; // Move to the next page
+        page++;
       } else {
-        hasNextPage = false; // No more pages
+        hasNextPage = false;
       }
     }
 
-    console.log(repositories.length);
-    // Step 2: Store repositories in MongoDB
+    // Step 3: Store repositories in MongoDB
+    const nowTimestamp = new Date();
     const repoPromises = repositories.map(async (repo) => {
       const existingRepo = await Repository.findOne({ repoId: repo.id });
 
       if (!existingRepo) {
-        // New repository
         const newRepo = new Repository({
           repoId: repo.id,
           name: repo.name,
@@ -54,23 +67,26 @@ const fetchAndStoreRepos = async (req, res) => {
           visibility: repo.private ? "private" : "public",
           createdAt: repo.created_at,
           updatedAt: repo.updated_at,
-          collaborators: [], // Initially empty
+          collaborators: [],
+          lastFetchedAt: nowTimestamp, // Set the fetch time
         });
 
         return await newRepo.save();
       } else {
-        // Existing repository, update fields if necessary
+        // Update visibility, updatedAt, and lastFetchedAt
         existingRepo.visibility = repo.private ? "private" : "public";
         existingRepo.updatedAt = repo.updated_at;
+        existingRepo.lastFetchedAt = nowTimestamp;
         return await existingRepo.save();
       }
     });
 
-    await Promise.all(repoPromises); // Wait for all saves to complete
+    await Promise.all(repoPromises);
 
-    res.status(200).json({
-      message: "Repositories fetched and stored successfully.",
-    });
+    // Fetch updated repositories from MongoDB
+    const updatedRepositories = await Repository.find();
+
+    res.status(200).json(updatedRepositories);
   } catch (error) {
     console.error("Error fetching repositories:", error.message);
     res.status(500).json({ error: "Failed to fetch and store repositories." });
